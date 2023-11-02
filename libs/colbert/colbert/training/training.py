@@ -37,28 +37,27 @@ def train(config: ColBERTConfig, triples, queries=None, collection=None):
         config.accumsteps,
     )
 
-    if collection is not None:
-        if config.reranker:
-            reader = RerankBatcher(
-                config,
-                triples,
-                queries,
-                collection,
-                (0 if config.rank == -1 else config.rank),
-                config.nranks,
-            )
-        else:
-            reader = LazyBatcher(
-                config,
-                triples,
-                queries,
-                collection,
-                (0 if config.rank == -1 else config.rank),
-                config.nranks,
-            )
-    else:
+    if collection is None:
         raise NotImplementedError()
 
+    if config.reranker:
+        reader = RerankBatcher(
+            config,
+            triples,
+            queries,
+            collection,
+            (0 if config.rank == -1 else config.rank),
+            config.nranks,
+        )
+    else:
+        reader = LazyBatcher(
+            config,
+            triples,
+            queries,
+            collection,
+            (0 if config.rank == -1 else config.rank),
+            config.nranks,
+        )
     if not config.reranker:
         colbert = ColBERT(name=config.checkpoint, colbert_config=config)
     else:
@@ -165,11 +164,14 @@ def train(config: ColBERTConfig, triples, queries=None, collection=None):
 
     if config.rank < 1:
         print_message("#> Done with all triples!")
-        ckpt_path = manage_checkpoints(
-            config, colbert, optimizer, batch_idx + 1, savepath=None, consumed_all_triples=True
+        return manage_checkpoints(
+            config,
+            colbert,
+            optimizer,
+            batch_idx + 1,
+            savepath=None,
+            consumed_all_triples=True,
         )
-
-        return ckpt_path  # TODO: This should validate and return the best checkpoint, not just the last one.
 
 
 def set_bert_grad(colbert, value):

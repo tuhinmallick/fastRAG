@@ -20,7 +20,7 @@ counter = {"api": 0}
 @lru_cache(maxsize=1000000)
 def api_search_query(query, k):
     print(f"Query={query}")
-    if k == None:
+    if k is None:
         k = 10
     k = min(int(k), 100)
     pids, ranks, scores = searcher.search(query, k=100)
@@ -39,12 +39,11 @@ def api_search_query(query, k):
 
 @app.route("/api/search", methods=["GET"])
 def api_search():
-    if request.method == "GET":
-        counter["api"] += 1
-        print("API request count:", counter["api"])
-        return api_search_query(request.args.get("query"), request.args.get("k"))
-    else:
+    if request.method != "GET":
         return ("", 405)
+    counter["api"] += 1
+    print("API request count:", counter["api"])
+    return api_search_query(request.args.get("query"), request.args.get("k"))
 
 
 if __name__ == "__main__":

@@ -71,7 +71,7 @@ class Collection:
         for chunk_idx, owner in enumerate(itertools.cycle(range(Run().nranks))):
             L = [line for _, line in zip(range(chunksize), iterator)]
 
-            if len(L) > 0 and owner == rank:
+            if L and owner == rank:
                 yield (chunk_idx, offset, L)
 
             offset += len(L)

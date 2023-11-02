@@ -35,7 +35,7 @@ class ColBERT(BaseColBERT):
             return
 
         print_message(
-            f"Loading segmented_maxsim_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
+            "Loading segmented_maxsim_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
         )
         segmented_maxsim_cpp = load(
             name="segmented_maxsim_cpp",
@@ -135,11 +135,10 @@ class ColBERT(BaseColBERT):
         return colbert_score(Q, D_padded, D_mask, config=self.colbert_config)
 
     def mask(self, input_ids, skiplist):
-        mask = [
+        return [
             [(x not in skiplist) and (x != self.pad_token) for x in d]
             for d in input_ids.cpu().tolist()
         ]
-        return mask
 
 
 # TODO: In Query/DocTokenizer, use colbert.raw_tokenizer
@@ -211,11 +210,10 @@ def colbert_score_packed(Q, D_packed, D_lengths, config=ColBERTConfig()):
 
     scores = D_packed @ Q.to(dtype=D_packed.dtype).T
 
-    if use_gpu or config.interaction == "flipr":
-        scores_padded, scores_mask = StridedTensor(
-            scores, D_lengths, use_gpu=use_gpu
-        ).as_padded_tensor()
-
-        return colbert_score_reduce(scores_padded, scores_mask, config)
-    else:
+    if not use_gpu and config.interaction != "flipr":
         return ColBERT.segmented_maxsim(scores, D_lengths)
+    scores_padded, scores_mask = StridedTensor(
+        scores, D_lengths, use_gpu=use_gpu
+    ).as_padded_tensor()
+
+    return colbert_score_reduce(scores_padded, scores_mask, config)

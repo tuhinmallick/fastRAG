@@ -159,8 +159,7 @@ class LukeKGCreator(BaseComponent):
         answers=None,
         documents=None,
     ):
-        query_dict = dict(query=queries, answers=answers, documents=documents, images={})
-        return query_dict
+        return dict(query=queries, answers=answers, documents=documents, images={})
 
     def run(self, query=None, answers=None, documents=None):
         return (
@@ -186,22 +185,22 @@ class LukeKGCreator(BaseComponent):
     def get_entities(self, text):
         doc = self.nlp(text)
 
-        spans_data = []
-
-        for ent in doc.ents:
-            if ent.label_ in RELEVANT_ENTITY_LABELS:
-                spans_data.append(
-                    {"span": (ent.start_char, ent.end_char), "text": ent.text, "label": ent.label_}
-                )
-
-        return spans_data
+        return [
+            {
+                "span": (ent.start_char, ent.end_char),
+                "text": ent.text,
+                "label": ent.label_,
+            }
+            for ent in doc.ents
+            if ent.label_ in RELEVANT_ENTITY_LABELS
+        ]
 
     def get_all_sentence_entities(self, documents):
         all_sentences = []
         all_ent_spans = []
         all_ent_types = []
 
-        for document_index, document in enumerate(tqdm(documents)):
+        for document in tqdm(documents):
             sentences = self.sentence_tokenizer.tokenize(document.content)
 
             for sentence in sentences:
@@ -248,7 +247,6 @@ class LukeKGCreator(BaseComponent):
         logits = outputs.logits
 
         predicted_class_idx = logits.argmax(dim=1)
-        relations_predicted = [
+        return [
             self.model.config.id2label[ii] for ii in predicted_class_idx.tolist()
         ]
-        return relations_predicted

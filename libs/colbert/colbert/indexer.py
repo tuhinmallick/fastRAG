@@ -40,9 +40,7 @@ class Indexer:
             delete = delete and (
                 "metadata" in filename or "doclen" in filename or "plan" in filename
             )
-            delete = delete or filename.endswith(".pt")
-
-            if delete:
+            if delete := delete or filename.endswith(".pt"):
                 deleted.append(filename)
 
         if len(deleted):

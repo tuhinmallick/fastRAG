@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, os.path.abspath("../../colbert"))
 
 print("current directory")
-print(str(os.listdir()))
+print(os.listdir())
 
 
 # -- Project information -----------------------------------------------------

@@ -68,7 +68,7 @@ class FastRAGFAISSStore(FAISSDocumentStore):
             )
 
         total_gpus_to_use = faiss.get_num_gpus()
-        use_gpu = True if total_gpus_to_use > 0 else False
+        use_gpu = total_gpus_to_use > 0
         if use_gpu:
             faiss_index_cpu = self.faiss_indexes["document"]
             total_gpus = faiss.get_num_gpus()

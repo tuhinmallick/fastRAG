@@ -22,7 +22,7 @@ class RankingScorer:
         return self.__provenance
 
     def run(self):
-        print_message(f"#> Starting..")
+        print_message("#> Starting..")
 
         qids, pids, *_ = zipstar(self.ranking)
         distillation_scores = self.scorer.launch(qids, pids)
@@ -41,8 +41,7 @@ class RankingScorer:
             print_message(f"#> Saved the distillation_scores to {output_path}")
 
         with Run().open(f"{output_path}.meta", "w") as f:
-            d = {}
-            d["metadata"] = get_metadata_only()
+            d = {"metadata": get_metadata_only()}
             d["provenance"] = self.provenance()
             line = ujson.dumps(d, indent=4)
             f.write(line)

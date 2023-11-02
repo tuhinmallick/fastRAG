@@ -70,7 +70,7 @@ class Run(object):
         return open(path, mode=mode)
 
     def print(self, *args):
-        print_message("[" + str(self.rank) + "]", "\t\t", *args)
+        print_message(f"[{str(self.rank)}]", "\t\t", *args)
 
     def print_main(self, *args):
         if self.rank == 0:

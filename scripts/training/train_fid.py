@@ -192,19 +192,18 @@ class DataTrainingArguments:
             and self.test_file is None
         ):
             raise ValueError("Need either a dataset name or a training/validation file/test_file.")
-        else:
-            if self.train_file is not None:
-                extension = self.train_file.split(".")[-1]
-                assert extension in ["csv", "json"], "`train_file` should be a csv or a json file."
-            if self.validation_file is not None:
-                extension = self.validation_file.split(".")[-1]
-                assert extension in [
-                    "csv",
-                    "json",
-                ], "`validation_file` should be a csv or a json file."
-            if self.test_file is not None:
-                extension = self.test_file.split(".")[-1]
-                assert extension in ["csv", "json"], "`test_file` should be a csv or a json file."
+        if self.train_file is not None:
+            extension = self.train_file.split(".")[-1]
+            assert extension in ["csv", "json"], "`train_file` should be a csv or a json file."
+        if self.validation_file is not None:
+            extension = self.validation_file.split(".")[-1]
+            assert extension in [
+                "csv",
+                "json",
+            ], "`validation_file` should be a csv or a json file."
+        if self.test_file is not None:
+            extension = self.test_file.split(".")[-1]
+            assert extension in ["csv", "json"], "`test_file` should be a csv or a json file."
 
 
 @dataclass
@@ -282,7 +281,7 @@ class FusionInDecoderDataset(Dataset):
 
         full_answer_list = example["answers"]
 
-        item_dict = dict(
+        return dict(
             question=question,
             formatted_passages_with_question=formatted_passages_with_question,
             answer=answer,
@@ -290,7 +289,6 @@ class FusionInDecoderDataset(Dataset):
             idx=idx,
             train=self.train,
         )
-        return item_dict
 
     def __len__(self):
         return len(self.examples)
@@ -312,11 +310,9 @@ class FusionInDecoderCollator:
             truncation=True,
         )
         answer_tensor_obj_mask = answer_tensor_obj["attention_mask"].bool()
-        labels = answer_tensor_obj["input_ids"].masked_fill(
+        return answer_tensor_obj["input_ids"].masked_fill(
             ~answer_tensor_obj_mask, self.answer_mask_fill_value
         )
-
-        return labels
 
     def __call__(self, features, return_tensors=None):
         all_passages = [xitem["formatted_passages_with_question"] for xitem in features]
@@ -332,8 +328,9 @@ class FusionInDecoderCollator:
             all_answers = torch.tensor([xitem["idx"] for xitem in features])
             all_answers = all_answers.view(-1, 1)
 
-        input_tuple = dict(input_ids=all_input_ids, attention_mask=all_masks, labels=all_answers)
-        return input_tuple
+        return dict(
+            input_ids=all_input_ids, attention_mask=all_masks, labels=all_answers
+        )
 
 
 if __name__ == "__main__":
@@ -482,8 +479,7 @@ if __name__ == "__main__":
             current_results_overall_dict["em"] = int(current_results_overall_dict["em"] > 0)
             results_overall.append(current_results_overall_dict)
 
-        results_overall_dict = pd.DataFrame(results_overall).mean().to_dict()
-        return results_overall_dict
+        return pd.DataFrame(results_overall).mean().to_dict()
 
     trainer = Seq2SeqTrainer(
         model=model,

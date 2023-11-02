@@ -18,12 +18,12 @@ class DocumentLister(BaseComponent):
         invocation_context: Optional[Dict[str, Any]] = None,
     ) -> Tuple[Dict, str]:
         
-        context_text = ""
-        for doc_index, doc in enumerate(documents):
-            context_text += f"Paragraph {doc_index+1}: {doc.content}\n\n"
-            
+        context_text = "".join(
+            f"Paragraph {doc_index + 1}: {doc.content}\n\n"
+            for doc_index, doc in enumerate(documents)
+        )
         joined_doc = Document(content=context_text)
-        
+
         results = {
             "documents": [joined_doc],
             "invocation_context": {
@@ -31,7 +31,7 @@ class DocumentLister(BaseComponent):
                 "documents": [joined_doc],
             }
         }
-            
+
         return results, "output_1"
 
     def run_batch(  # type: ignore

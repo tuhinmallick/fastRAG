@@ -63,11 +63,10 @@ class ResidualCodec:
                 # Extract a subsequence of length n bits
                 x = (i >> (j - self.nbits)) & mask
 
-                # Reverse the endianness of each bit subsequence (e.g. 10 -> 01)
-                y = 0
-                for k in range(self.nbits - 1, -1, -1):
-                    y += ((x >> (self.nbits - k - 1)) & 1) * (2**k)
-
+                y = sum(
+                    ((x >> (self.nbits - k - 1)) & 1) * (2**k)
+                    for k in range(self.nbits - 1, -1, -1)
+                )
                 # Set the corresponding bits in the output byte
                 z |= y
                 if j > self.nbits:
@@ -95,7 +94,7 @@ class ResidualCodec:
             return
 
         print_message(
-            f"Loading decompress_residuals_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
+            "Loading decompress_residuals_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
         )
         decompress_residuals_cpp = load(
             name="decompress_residuals_cpp",
@@ -108,7 +107,7 @@ class ResidualCodec:
         cls.decompress_residuals = decompress_residuals_cpp.decompress_residuals_cpp
 
         print_message(
-            f"Loading packbits_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
+            "Loading packbits_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
         )
         packbits_cpp = load(
             name="packbits_cpp",

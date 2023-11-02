@@ -19,9 +19,11 @@ def get_parts(directory):
 
     # Integer-sortedness matters.
     parts_paths = [
-        os.path.join(directory, "{}{}".format(filename, extension)) for filename in parts
+        os.path.join(directory, f"{filename}{extension}") for filename in parts
     ]
-    samples_paths = [os.path.join(directory, "{}.sample".format(filename)) for filename in parts]
+    samples_paths = [
+        os.path.join(directory, f"{filename}.sample") for filename in parts
+    ]
 
     return parts, parts_paths, samples_paths
 
@@ -44,7 +46,7 @@ def load_doclens(directory, flatten=True):
     if flatten:
         all_doclens = [x for sub_doclens in all_doclens for x in sub_doclens]
 
-    if len(all_doclens) == 0:
+    if not all_doclens:
         raise ValueError("Could not load doclens")
 
     return all_doclens
@@ -65,7 +67,7 @@ def get_deltas(directory):
 
     # Integer-sortedness matters.
     parts_paths = [
-        os.path.join(directory, "{}{}".format(filename, extension)) for filename in parts
+        os.path.join(directory, f"{filename}{extension}") for filename in parts
     ]
 
     return parts, parts_paths

@@ -37,8 +37,7 @@ def get_kg_html(relations):
     nt.show_buttons()
     nt.show("nx.html")
     HtmlFile = open("nx.html", "r", encoding="utf-8")
-    source_code = HtmlFile.read()
-    return source_code
+    return HtmlFile.read()
 
 
 edge_type_to_label = {

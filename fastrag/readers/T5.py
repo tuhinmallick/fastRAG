@@ -59,7 +59,9 @@ class T5Reader(Seq2SeqGenerator):
             self.min_length = min_length
         logger.info(f"self.min_length: {self.min_length}")
         logger.info(f"self.max_length: {self.max_length}")
-        if isinstance(documents, list) and all([isinstance(doc, Document) for doc in documents]):
+        if isinstance(documents, list) and all(
+            isinstance(doc, Document) for doc in documents
+        ):
             return super().predict(
                 query=query, documents=documents, top_k=top_k
             )  # we use run() and not predict(), as run returns
@@ -86,7 +88,9 @@ class T5Reader(Seq2SeqGenerator):
             self.min_length = min_length
         logger.info(f"self.min_length: {self.min_length}")
         logger.info(f"self.max_length: {self.max_length}")
-        if isinstance(documents, list) and all([isinstance(doc, Document) for doc in documents]):
+        if isinstance(documents, list) and all(
+            isinstance(doc, Document) for doc in documents
+        ):
             return super().run(
                 query=query, documents=documents, top_k=top_k
             )  # we use run() and not predict(), as run returns

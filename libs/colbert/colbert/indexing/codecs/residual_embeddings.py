@@ -59,12 +59,12 @@ class ResidualEmbeddings:
         return cls(codes, residuals)
 
     @classmethod
-    def load_codes(self, index_path, chunk_idx):
+    def load_codes(cls, index_path, chunk_idx):
         codes_path = os.path.join(index_path, f"{chunk_idx}.codes.pt")
         return torch.load(codes_path, map_location="cpu")
 
     @classmethod
-    def load_residuals(self, index_path, chunk_idx):
+    def load_residuals(cls, index_path, chunk_idx):
         residuals_path = os.path.join(
             index_path, f"{chunk_idx}.residuals.pt"
         )  # f'{chunk_idx}.residuals.bn'

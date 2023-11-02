@@ -26,9 +26,7 @@ class BaseConfig(CoreConfig):
             local_kw_args = {k: local_kw_args[k] for k in source.assigned}
             kw_args = {**kw_args, **local_kw_args}
 
-        obj = cls(**kw_args)
-
-        return obj
+        return cls(**kw_args)
 
     @classmethod
     def from_deprecated_args(cls, args):

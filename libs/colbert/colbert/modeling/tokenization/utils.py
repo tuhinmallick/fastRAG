@@ -30,11 +30,7 @@ def tensorize_triples(query_tokenizer, doc_tokenizer, queries, passages, scores,
     else:
         score_batches = [[] for _ in doc_batches]
 
-    batches = []
-    for Q, D, S in zip(query_batches, doc_batches, score_batches):
-        batches.append((Q, D, S))
-
-    return batches
+    return list(zip(query_batches, doc_batches, score_batches))
 
 
 def _sort_by_length(ids, mask, bsize):
@@ -48,16 +44,14 @@ def _sort_by_length(ids, mask, bsize):
 
 
 def _split_into_batches(ids, mask, bsize):
-    batches = []
-    for offset in range(0, ids.size(0), bsize):
-        batches.append((ids[offset : offset + bsize], mask[offset : offset + bsize]))
-
-    return batches
+    return [
+        (ids[offset : offset + bsize], mask[offset : offset + bsize])
+        for offset in range(0, ids.size(0), bsize)
+    ]
 
 
 def _split_into_batches2(scores, bsize):
-    batches = []
-    for offset in range(0, len(scores), bsize):
-        batches.append(scores[offset : offset + bsize])
-
-    return batches
+    return [
+        scores[offset : offset + bsize]
+        for offset in range(0, len(scores), bsize)
+    ]

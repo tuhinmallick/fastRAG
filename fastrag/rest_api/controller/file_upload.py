@@ -96,9 +96,9 @@ def upload_file(
     converters = indexing_pipeline.get_nodes_by_class(BaseConverter)
     preprocessors = indexing_pipeline.get_nodes_by_class(PreProcessor)
 
-    params = {}
-    for converter in converters:
-        params[converter.name] = fileconverter_params.dict()
+    params = {
+        converter.name: fileconverter_params.dict() for converter in converters
+    }
     for preprocessor in preprocessors:
         params[preprocessor.name] = preprocessor_params.dict()
 

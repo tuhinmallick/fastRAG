@@ -60,7 +60,7 @@ class QueryTokenizer:
         assert type(batch_text) in [list, tuple], type(batch_text)
 
         # add placehold for the [Q] marker
-        batch_text = [". " + x for x in batch_text]
+        batch_text = [f". {x}" for x in batch_text]
 
         obj = self.tok(
             batch_text,
@@ -100,9 +100,7 @@ class QueryTokenizer:
             assert mask.sum().item() == mask.size(0) * mask.size(1), mask
 
         if bsize:
-            batches = _split_into_batches(ids, mask, bsize)
-            return batches
-
+            return _split_into_batches(ids, mask, bsize)
         if self.used is False:
             self.used = True
 

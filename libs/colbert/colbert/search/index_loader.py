@@ -22,11 +22,11 @@ class IndexLoader:
         self._load_embeddings()
 
     def _load_codec(self):
-        print_message(f"#> Loading codec...")
+        print_message("#> Loading codec...")
         self.codec = ResidualCodec.load(self.index_path)
 
     def _load_ivf(self):
-        print_message(f"#> Loading IVF...")
+        print_message("#> Loading IVF...")
 
         if os.path.exists(os.path.join(self.index_path, "ivf.pid.pt")):
             ivf, ivf_lengths = torch.load(
@@ -39,12 +39,8 @@ class IndexLoader:
             )
             ivf, ivf_lengths = optimize_ivf(ivf, ivf_lengths, self.index_path)
 
-        if False:
-            ivf = ivf.tolist()
-            ivf = [ivf[offset:endpos] for offset, endpos in lengths2offsets(ivf_lengths)]
-        else:
-            # ivf, ivf_lengths = ivf.cuda(), torch.LongTensor(ivf_lengths).cuda()  # FIXME: REMOVE THIS LINE!
-            ivf = StridedTensor(ivf, ivf_lengths, use_gpu=self.use_gpu)
+        # ivf, ivf_lengths = ivf.cuda(), torch.LongTensor(ivf_lengths).cuda()  # FIXME: REMOVE THIS LINE!
+        ivf = StridedTensor(ivf, ivf_lengths, use_gpu=self.use_gpu)
 
         self.ivf = ivf
 

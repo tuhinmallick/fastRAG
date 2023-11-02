@@ -42,7 +42,7 @@ class Queries:
             else:
                 self.data[qid] = content
 
-        if len(self._qas) == 0:
+        if not self._qas:
             del self._qas
 
         return True
@@ -112,7 +112,7 @@ class Queries:
         if type(obj) is str:
             return cls(path=obj)
 
-        if isinstance(obj, dict) or isinstance(obj, list):
+        if isinstance(obj, (dict, list)):
             return cls(data=obj)
 
         if type(obj) is cls:

@@ -58,11 +58,14 @@ transformers_module = dir(transformers)
 
 def find_class_names(model_type, class_type):
     model_type = model_type.replace("-", "").lower()
-    for item in transformers_module:
-        if model_type + class_type == item.lower():
-            return item
-
-    return None
+    return next(
+        (
+            item
+            for item in transformers_module
+            if model_type + class_type == item.lower()
+        ),
+        None,
+    )
 
 
 def class_factory(name_or_path):

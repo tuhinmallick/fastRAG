@@ -60,7 +60,7 @@ class FiDReader(Seq2SeqGenerator):
 
 
 def get_padded_tensor(ten_list, value=0):
-    max_len = max([x.shape[1] for x in ten_list])
+    max_len = max(x.shape[1] for x in ten_list)
     padded_list = []
     for tensor in ten_list:
         if tensor.shape[1] < max_len:
@@ -117,7 +117,7 @@ class FiDConverter:
                 f"Warning!!! You set {self.max_len} as max len for the tokenizer, which is smaller than model_max_length {model_max_len}."
             )
 
-        question = self.pre_question + " " + query
+        question = f"{self.pre_question} {query}"
 
         first_doc = documents[0]
         if first_doc.meta.get("title") is not None:
@@ -128,7 +128,9 @@ class FiDConverter:
         else:
             formatted_passages = [f"{self.pre_context} {c.content}" for c in documents]
 
-        formatted_passages_with_question = [[question + " " + t for t in formatted_passages]]
+        formatted_passages_with_question = [
+            [f"{question} {t}" for t in formatted_passages]
+        ]
         all_input_ids, all_masks = passages_to_tensors(
             tokenizer, formatted_passages_with_question, self.max_len, False
         )
@@ -159,11 +161,10 @@ class FusionInDecoderStack(T5Stack):
         return output.last_hidden_state if return_dict else output[0]
 
     def output_last_hidden_state(self, output, last_hidden_state, return_dict):
-        if return_dict:
-            output.last_hidden_state = last_hidden_state
-            return output
-        else:
+        if not return_dict:
             return tuple(last_hidden_state, *output[1:])
+        output.last_hidden_state = last_hidden_state
+        return output
 
     def check_for_encoder_output_preprocessing(self, output, return_dict, batch_size):
         if self.is_encoder:

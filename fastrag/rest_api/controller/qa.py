@@ -45,8 +45,7 @@ def query(request: QueryRequest):
     additional parameters that will be passed on to the Haystack pipeline.
     """
 
-    result = _process_request(app.pipeline, request)
-    return result
+    return _process_request(app.pipeline, request)
 
 
 def _process_request(pipeline, request) -> Dict[str, Any]:
@@ -88,7 +87,7 @@ def _process_request(pipeline, request) -> Dict[str, Any]:
 
     pipeline_components_list = list(pipeline.components.keys())
     for p in list(params.keys()):
-        if "filters" == str(p):
+        if str(p) == "filters":
             continue
         if str(p) not in pipeline_components_list:
             del params[p]
@@ -154,8 +153,7 @@ def reader_query(request: QueryRequest):
     additional parameters that will be passed on to the Haystack pipeline.
     This post request command is intended to a reader only pipeline
     """
-    result = _process_request_reader_only(app.pipelines["reader_only"], request)
-    return result
+    return _process_request_reader_only(app.pipelines["reader_only"], request)
 
 
 def _process_request_reader_only(pipeline, request):

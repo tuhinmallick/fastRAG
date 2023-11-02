@@ -70,8 +70,7 @@ def query(request: QueryRequest):
     additional parameters that will be passed on to the Haystack pipeline.
     """
     with concurrency_limiter.run():
-        result = _process_request(query_pipeline, request)
-        return result
+        return _process_request(query_pipeline, request)
 
 
 @send_event_if_public_demo
@@ -91,9 +90,9 @@ def _process_request(pipeline, request) -> Dict[str, Any]:
 
     result = pipeline.run(query=request.query, params=params, debug=request.debug)
     # Ensure answers and documents exist, even if they're empty lists
-    if not "documents" in result:
+    if "documents" not in result:
         result["documents"] = []
-    if not "answers" in result:
+    if "answers" not in result:
         result["answers"] = []
 
     logger.info(
