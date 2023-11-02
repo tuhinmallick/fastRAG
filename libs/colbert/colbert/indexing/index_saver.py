@@ -42,10 +42,7 @@ class IndexSaver:
             return False
 
         residuals_path = f"{path_prefix}.residuals.pt"  # f'{path_prefix}.residuals.bn'
-        if not os.path.exists(residuals_path):
-            return False
-
-        return True
+        return bool(os.path.exists(residuals_path))
 
     @contextmanager
     def thread(self):

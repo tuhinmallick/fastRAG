@@ -10,7 +10,7 @@ import tqdm
 
 def print_message(*s, condition=True, pad=False):
     s = " ".join([str(x) for x in s])
-    msg = "[{}] {}".format(datetime.datetime.now().strftime("%b %d, %H:%M:%S"), s)
+    msg = f'[{datetime.datetime.now().strftime("%b %d, %H:%M:%S")}] {s}'
 
     if condition:
         msg = msg if not pad else f"\n{msg}\n"
@@ -21,8 +21,7 @@ def print_message(*s, condition=True, pad=False):
 
 def timestamp(daydir=False):
     format_str = f"%Y-%m{'/' if daydir else '-'}%d{'/' if daydir else '_'}%H.%M.%S"
-    result = datetime.datetime.now().strftime(format_str)
-    return result
+    return datetime.datetime.now().strftime(format_str)
 
 
 def file_tqdm(file):
@@ -37,12 +36,11 @@ def file_tqdm(file):
 
 
 def torch_load_dnn(path):
-    if path.startswith("http:") or path.startswith("https:"):
-        dnn = torch.hub.load_state_dict_from_url(path, map_location="cpu")
-    else:
-        dnn = torch.load(path, map_location="cpu")
-
-    return dnn
+    return (
+        torch.hub.load_state_dict_from_url(path, map_location="cpu")
+        if path.startswith("http:") or path.startswith("https:")
+        else torch.load(path, map_location="cpu")
+    )
 
 
 def save_checkpoint(path, epoch_idx, mb_idx, model, optimizer, arguments=None):
@@ -51,10 +49,11 @@ def save_checkpoint(path, epoch_idx, mb_idx, model, optimizer, arguments=None):
     if hasattr(model, "module"):
         model = model.module  # extract model from a distributed/data-parallel wrapper
 
-    checkpoint = {}
-    checkpoint["epoch"] = epoch_idx
-    checkpoint["batch"] = mb_idx
-    checkpoint["model_state_dict"] = model.state_dict()
+    checkpoint = {
+        "epoch": epoch_idx,
+        "batch": mb_idx,
+        "model_state_dict": model.state_dict(),
+    }
     checkpoint["optimizer_state_dict"] = optimizer.state_dict()
     checkpoint["arguments"] = arguments
 
@@ -195,10 +194,7 @@ def zip_first(L1, L2):
 
 
 def int_or_float(val):
-    if "." in val:
-        return float(val)
-
-    return int(val)
+    return float(val) if "." in val else int(val)
 
 
 def load_ranking(path, types=None, lazy=False):

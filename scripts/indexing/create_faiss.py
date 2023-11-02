@@ -25,7 +25,9 @@ if __name__ == "__main__":
     store_cls = store_params.pop("type")
     store_params["faiss_index_path"] = None
     store_params["faiss_config_path"] = None
-    store_params["sql_url"] = f"sqlite:///{args.index_save_path}" + os.sep + "faiss_doc_store.db"
+    store_params[
+        "sql_url"
+    ] = f"sqlite:///{args.index_save_path}{os.sep}faiss_doc_store.db"
     store = init_haystack_cls(store_cls, store_params)
 
     logger.info("Loaded store backend")

@@ -12,8 +12,7 @@ from haystack.nodes.answer_generator.base import BaseGenerator
 def pil_to_base64(obj):
     buffered = BytesIO()
     obj.save(buffered, format="JPEG")
-    img_str = base64.b64encode(buffered.getvalue())
-    return img_str
+    return base64.b64encode(buffered.getvalue())
 
 
 def get_answer_text(obj):
@@ -114,7 +113,7 @@ class ImageDiffuserGenerator(BaseGenerator):
         """
         generate_from_parts = generate_from.split(",")
 
-        generate_locations = set([GET_TEXT_LOCATION[part] for part in generate_from_parts])
+        generate_locations = {GET_TEXT_LOCATION[part] for part in generate_from_parts}
 
         text_combinations = list(product(*[query_dict[part] for part in generate_locations]))
 

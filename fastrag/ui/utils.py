@@ -131,10 +131,13 @@ def query(
     if response.get("images"):
         for from_image in response["images"]:
             image_outputs = response["images"][from_image]
-            for image_output in image_outputs:
-                images.append(
-                    {"text": image_output["merged_text"], "image_content": image_output["image"]}
-                )
+            images.extend(
+                {
+                    "text": image_output["merged_text"],
+                    "image_content": image_output["image"],
+                }
+                for image_output in image_outputs
+            )
     relations = response.get("relations", [])
 
     return results, response, images, relations
@@ -163,8 +166,7 @@ def send_feedback(query, answer_obj, is_correct_answer, is_correct_document, doc
 def upload_doc(file):
     url = f"{API_ENDPOINT}/{DOC_UPLOAD}"
     files = [("files", file)]
-    response = requests.post(url, files=files).json()
-    return response
+    return requests.post(url, files=files).json()
 
 
 def get_backlink(result) -> Tuple[Optional[str], Optional[str]]:

@@ -143,8 +143,7 @@ class IndexUpdater:
         )
 
         print_message(f"#> Added {len(passages)} passages from pid {start_pid}.")
-        new_pids = list(range(start_pid, start_pid + len(passages)))
-        return new_pids
+        return list(range(start_pid, start_pid + len(passages)))
 
     def persist_to_disk(self):
         """
@@ -226,7 +225,7 @@ class IndexUpdater:
     # HELPER FUNCTIONS BELOW
 
     def _load_disk_ivf(self):
-        print_message(f"#> Loading IVF...")
+        print_message("#> Loading IVF...")
 
         if os.path.exists(os.path.join(self.index_path, "ivf.pid.pt")):
             ivf, ivf_lengths = torch.load(
@@ -255,8 +254,7 @@ class IndexUpdater:
             chunk_doclens = ujson.load(f)
             doclens.extend(chunk_doclens)
 
-        doclens = torch.tensor(doclens)
-        return doclens
+        return torch.tensor(doclens)
 
     def _load_chunk_codes(self, chunk_idx):
         codes_path = os.path.join(self.index_path, f"{chunk_idx}.codes.pt")

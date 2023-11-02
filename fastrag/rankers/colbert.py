@@ -92,9 +92,10 @@ class ColBERTRanker(BaseRanker):
             assert len(queries) == len(
                 documents
             ), "Lists of documents should match number of queries."
-            for query, q_documents in zip(queries, documents):
-                predictions.append(self.predict(query, q_documents, top_k))
-
+            predictions.extend(
+                self.predict(query, q_documents, top_k)
+                for query, q_documents in zip(queries, documents)
+            )
         else:
             q_embeddings = self.checkpoint.queryFromText(queries, bsize=64, to_cpu=self.to_cpu)
             if self.use_gpu:
@@ -114,7 +115,8 @@ class ColBERTRanker(BaseRanker):
                 torch.einsum("bwd,qvd -> bqwv", q_embeddings, tensor * masks).max(-1).values.sum(-1)
             )
             indices = scores.cpu().sort(1, descending=True).indices
-            for q_index in indices:
-                predictions.append([documents[i.item()] for i in q_index[:top_k]])
-
+            predictions.extend(
+                [documents[i.item()] for i in q_index[:top_k]]
+                for q_index in indices
+            )
         return predictions

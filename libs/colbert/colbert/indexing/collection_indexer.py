@@ -143,24 +143,23 @@ class CollectionIndexer:
 
             nonzero_ranks = torch.tensor([float(len(local_sample) > 0)]).cuda()
             torch.distributed.all_reduce(nonzero_ranks)
+        elif torch.distributed.is_initialized():
+            self.num_sample_embs = torch.tensor([local_sample_embs.size(0)]).cpu()
+            torch.distributed.all_reduce(self.num_sample_embs)
+
+            avg_doclen_est = sum(doclens) / len(doclens) if doclens else 0
+            avg_doclen_est = torch.tensor([avg_doclen_est]).cpu()
+            torch.distributed.all_reduce(avg_doclen_est)
+
+            nonzero_ranks = torch.tensor([float(len(local_sample) > 0)]).cpu()
+            torch.distributed.all_reduce(nonzero_ranks)
         else:
-            if torch.distributed.is_initialized():
-                self.num_sample_embs = torch.tensor([local_sample_embs.size(0)]).cpu()
-                torch.distributed.all_reduce(self.num_sample_embs)
+            self.num_sample_embs = torch.tensor([local_sample_embs.size(0)]).cpu()
 
-                avg_doclen_est = sum(doclens) / len(doclens) if doclens else 0
-                avg_doclen_est = torch.tensor([avg_doclen_est]).cpu()
-                torch.distributed.all_reduce(avg_doclen_est)
+            avg_doclen_est = sum(doclens) / len(doclens) if doclens else 0
+            avg_doclen_est = torch.tensor([avg_doclen_est]).cpu()
 
-                nonzero_ranks = torch.tensor([float(len(local_sample) > 0)]).cpu()
-                torch.distributed.all_reduce(nonzero_ranks)
-            else:
-                self.num_sample_embs = torch.tensor([local_sample_embs.size(0)]).cpu()
-
-                avg_doclen_est = sum(doclens) / len(doclens) if doclens else 0
-                avg_doclen_est = torch.tensor([avg_doclen_est]).cpu()
-
-                nonzero_ranks = torch.tensor([float(len(local_sample) > 0)]).cpu()
+            nonzero_ranks = torch.tensor([float(len(local_sample) > 0)]).cpu()
 
         avg_doclen_est = avg_doclen_est.item() / nonzero_ranks.item()
         self.avg_doclen_est = avg_doclen_est
@@ -179,29 +178,28 @@ class CollectionIndexer:
     def _try_load_plan(self):
         config = self.config
         self.plan_path = os.path.join(config.index_path_, "plan.json")
-        if os.path.exists(self.plan_path):
-            with open(self.plan_path, "r") as f:
-                try:
-                    plan = ujson.load(f)
-                except Exception as e:
-                    return False
-                if not (
-                    "num_chunks" in plan
-                    and "num_partitions" in plan
-                    and "num_embeddings_est" in plan
-                    and "avg_doclen_est" in plan
-                ):
-                    return False
-
-                # TODO: Verify config matches
-                self.num_chunks = plan["num_chunks"]
-                self.num_partitions = plan["num_partitions"]
-                self.num_embeddings_est = plan["num_embeddings_est"]
-                self.avg_doclen_est = plan["avg_doclen_est"]
-
-            return True
-        else:
+        if not os.path.exists(self.plan_path):
             return False
+        with open(self.plan_path, "r") as f:
+            try:
+                plan = ujson.load(f)
+            except Exception as e:
+                return False
+            if (
+                "num_chunks" not in plan
+                or "num_partitions" not in plan
+                or "num_embeddings_est" not in plan
+                or "avg_doclen_est" not in plan
+            ):
+                return False
+
+            # TODO: Verify config matches
+            self.num_chunks = plan["num_chunks"]
+            self.num_partitions = plan["num_partitions"]
+            self.num_embeddings_est = plan["num_embeddings_est"]
+            self.avg_doclen_est = plan["avg_doclen_est"]
+
+        return True
 
     def _save_plan(self):
         if self.rank < 1:
@@ -293,7 +291,7 @@ class CollectionIndexer:
             shared_lists[0][0] = sample
             return_value_queue = mp.Queue()
 
-            args_ = args_ + [shared_lists, return_value_queue]
+            args_ += [shared_lists, return_value_queue]
             proc = mp.Process(target=compute_faiss_kmeans, args=args_)
 
             proc.start()
@@ -301,15 +299,11 @@ class CollectionIndexer:
             proc.join()
 
         else:
-            args_ = args_ + [[[sample]]]
+            args_ += [[[sample]]]
             centroids = compute_faiss_kmeans(*args_)
 
         centroids = torch.nn.functional.normalize(centroids, dim=-1)
-        if self.use_gpu:
-            centroids = centroids.half()
-        else:
-            centroids = centroids.float()
-
+        centroids = centroids.half() if self.use_gpu else centroids.float()
         return centroids
 
     def _compute_avg_residual(self, centroids, heldout):
@@ -481,7 +475,7 @@ class CollectionIndexer:
             codes.size(),
         )
 
-        Run().print_main(f"Sorting codes...")
+        Run().print_main("Sorting codes...")
 
         print_memory_stats(f"RANK:{self.rank}")
 
@@ -490,7 +484,7 @@ class CollectionIndexer:
 
         print_memory_stats(f"RANK:{self.rank}")
 
-        Run().print_main(f"Getting unique codes...")
+        Run().print_main("Getting unique codes...")
 
         ivf_lengths = torch.bincount(values, minlength=self.num_partitions)
         assert ivf_lengths.size(0) == self.num_partitions
@@ -528,7 +522,7 @@ def compute_faiss_kmeans(dim, num_partitions, kmeans_niters, shared_lists, retur
 
     centroids = torch.from_numpy(kmeans.centroids)
 
-    print_memory_stats(f"RANK:0*")
+    print_memory_stats("RANK:0*")
 
     if return_value_queue is not None:
         return_value_queue.put(centroids)

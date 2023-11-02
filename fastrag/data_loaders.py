@@ -34,7 +34,7 @@ class BaseParser:
 
 def wikidpedia_data_encoder(row) -> Document:
     """encoder for wikipedia passages from HF"""
-    row_id = str(hashlib.sha256(row["_id"].encode()).hexdigest())
+    row_id = hashlib.sha256(row["_id"].encode()).hexdigest()
     return Document(
         content=str(row["passage_text"]),
         id=row_id,
@@ -244,13 +244,10 @@ class CSVFileLoader(BaseParser):
             total=self.iterations_count,
             desc="Document chunks",
         ):
-            docs = [self.encode_fn(row) for _, row in df.iterrows()]
-            yield docs
+            yield [self.encode_fn(row) for _, row in df.iterrows()]
 
 
 def _get_file_length(filepath):
     with open(filepath) as f:
-        line_count = 0
-        for line in f:
-            line_count += 1
+        line_count = sum(1 for _ in f)
     return line_count

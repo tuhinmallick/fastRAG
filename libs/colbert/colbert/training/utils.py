@@ -48,8 +48,7 @@ def manage_checkpoints(
     if path_save:
         print(f"#> Saving a checkpoint to {path_save} ..")
 
-        checkpoint = {}
-        checkpoint["batch"] = batch_idx
+        checkpoint = {"batch": batch_idx}
         # checkpoint['epoch'] = 0
         # checkpoint['model_state_dict'] = model.state_dict()
         # checkpoint['optimizer_state_dict'] = optimizer.state_dict()

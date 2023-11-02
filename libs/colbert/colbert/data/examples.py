@@ -63,8 +63,7 @@ class Examples:
             print_message(f"#> Saved examples with {len(self.data)} lines to {f.name}")
 
         with Run().open(f"{new_path}.meta", "w") as f:
-            d = {}
-            d["metadata"] = get_metadata_only()
+            d = {"metadata": get_metadata_only()}
             d["provenance"] = self.provenance()
             line = ujson.dumps(d, indent=4)
             f.write(line)

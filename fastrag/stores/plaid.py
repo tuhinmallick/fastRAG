@@ -165,21 +165,19 @@ class PLAIDDocumentStore(BaseDocumentStore):
 
         doc_ids, _, scores = self.store.search(text=query_str, k=top_k)
 
-        documents = [
+        return [
             Document.from_dict(
                 {
                     "content": self.docs.iloc[_id][1],
                     "id": _id,
                     "score": score,
-                    "meta": {"title": self.docs.iloc[_id][2] if self.titles else None},
+                    "meta": {
+                        "title": self.docs.iloc[_id][2] if self.titles else None
+                    },
                 }
             )
             for _id, score in zip(doc_ids, scores)
         ]
-
-        # self._normalize_scores(documents)
-
-        return documents
 
     def query_batch(self, query_strs: List[str], top_k=10) -> List[List[Document]]:
         """
@@ -188,7 +186,7 @@ class PLAIDDocumentStore(BaseDocumentStore):
         Returns: lists of lists of Haystack documents.
         """
 
-        query = self.store.search_all({i: s for i, s in enumerate(query_strs)}, k=top_k)
+        query = self.store.search_all(dict(enumerate(query_strs)), k=top_k)
         documents = []
 
         for result in query.data.values():

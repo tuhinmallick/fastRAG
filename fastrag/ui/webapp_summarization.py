@@ -181,7 +181,7 @@ This is a demo of a generative Summarization pipeline, using the fastRAG package
             # Upload file
             if data_file:
                 raw_json = upload_doc(data_file)
-                st.sidebar.write(str(data_file.name) + " &nbsp;&nbsp; ✅ ")
+                st.sidebar.write(f"{str(data_file.name)} &nbsp;&nbsp; ✅ ")
                 if debug:
                     st.subheader("REST API JSON response")
                     st.sidebar.write(raw_json)

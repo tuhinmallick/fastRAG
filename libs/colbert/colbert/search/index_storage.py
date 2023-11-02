@@ -30,7 +30,7 @@ class IndexScorer(IndexLoader, CandidateGeneration):
             return
 
         print_message(
-            f"Loading filter_pids_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
+            "Loading filter_pids_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
         )
         filter_pids_cpp = load(
             name="filter_pids_cpp",
@@ -43,7 +43,7 @@ class IndexScorer(IndexLoader, CandidateGeneration):
         cls.filter_pids = filter_pids_cpp.filter_pids_cpp
 
         print_message(
-            f"Loading decompress_residuals_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
+            "Loading decompress_residuals_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
         )
         decompress_residuals_cpp = load(
             name="decompress_residuals_cpp",
@@ -72,8 +72,7 @@ class IndexScorer(IndexLoader, CandidateGeneration):
         return embedding_ids, centroid_scores
 
     def embedding_ids_to_pids(self, embedding_ids):
-        all_pids = torch.unique(self.emb2pid[embedding_ids.long()].cuda(), sorted=False)
-        return all_pids
+        return torch.unique(self.emb2pid[embedding_ids.long()].cuda(), sorted=False)
 
     def rank(self, config, Q, filter_fn=None):
         with torch.inference_mode():
@@ -100,9 +99,6 @@ class IndexScorer(IndexLoader, CandidateGeneration):
         Otherwise, each query matrix will be compared against the *aligned* passage.
         """
 
-        # TODO: Remove batching?
-        batch_size = 2**20
-
         if self.use_gpu:
             centroid_scores = centroid_scores.cuda()
 
@@ -110,6 +106,9 @@ class IndexScorer(IndexLoader, CandidateGeneration):
 
         if self.use_gpu:
             approx_scores = []
+
+            # TODO: Remove batching?
+            batch_size = 2**20
 
             # Filter docs using pruned centroid scores
             for i in range(0, ceil(len(pids) / batch_size)):

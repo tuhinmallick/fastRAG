@@ -104,8 +104,7 @@ def init_cls(class_name: str, parameters: dict, **kwargs):
     try:
         p = parameters.copy()
         p.update(kwargs)
-        new_cls_obj = class_init(**p)
-        return new_cls_obj
+        return class_init(**p)
     except Exception as e:
         raise e
 
@@ -139,8 +138,7 @@ GET_TITLE_MAP = {
 
 def get_ans(text, answers):
     for ans in answers:
-        has_answer = regex_match(text, ans)
-        if has_answer:
+        if has_answer := regex_match(text, ans):
             return True
     return False
 

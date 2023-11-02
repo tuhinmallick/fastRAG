@@ -9,10 +9,7 @@ from colbert.utils.utils import groupby_first_item, print_message
 
 
 def numericize(v):
-    if "." in v:
-        return float(v)
-
-    return int(v)
+    return float(v) if "." in v else int(v)
 
 
 def load_ranking(path):  # works with annotated and un-annotated ranked lists
@@ -76,8 +73,7 @@ class Ranking:
             )
 
         with Run().open(f"{new_path}.meta", "w") as f:
-            d = {}
-            d["metadata"] = get_metadata_only()
+            d = {"metadata": get_metadata_only()}
             d["provenance"] = self.provenance()
             line = ujson.dumps(d, indent=4)
             f.write(line)
@@ -89,7 +85,7 @@ class Ranking:
         if type(obj) is str:
             return cls(path=obj)
 
-        if isinstance(obj, dict) or isinstance(obj, list):
+        if isinstance(obj, (dict, list)):
             return cls(data=obj)
 
         if type(obj) is cls:

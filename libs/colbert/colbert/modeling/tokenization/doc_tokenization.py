@@ -51,7 +51,7 @@ class DocTokenizer:
         assert type(batch_text) in [list, tuple], type(batch_text)
 
         # add placehold for the [D] marker
-        batch_text = [". " + x for x in batch_text]
+        batch_text = [f". {x}" for x in batch_text]
 
         obj = self.tok(
             batch_text,

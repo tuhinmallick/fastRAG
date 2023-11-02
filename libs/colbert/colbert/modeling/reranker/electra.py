@@ -27,9 +27,7 @@ class ElectraReranker(ElectraPreTrainedModel):
             token_type_ids=encoding.token_type_ids,
         )[0]
 
-        scores = self.linear(outputs[:, 0]).squeeze(-1)
-
-        return scores
+        return self.linear(outputs[:, 0]).squeeze(-1)
 
     def save(self, path):
         assert not path.endswith(

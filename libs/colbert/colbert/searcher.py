@@ -50,9 +50,7 @@ class Searcher:
         bsize = 128 if len(queries) > 128 else None
 
         self.checkpoint.query_tokenizer.query_maxlen = self.config.query_maxlen
-        Q = self.checkpoint.queryFromText(queries, bsize=bsize, to_cpu=True)
-
-        return Q
+        return self.checkpoint.queryFromText(queries, bsize=bsize, to_cpu=True)
 
     def search(self, text: str, k=10, filter_fn=None):
         Q = self.encode(text)
@@ -72,7 +70,7 @@ class Searcher:
             for query_idx in tqdm(range(Q.size(0)))
         ]
 
-        data = {qid: val for qid, val in zip(queries.keys(), all_scored_pids)}
+        data = dict(zip(queries.keys(), all_scored_pids))
 
         provenance = Provenance()
         provenance.source = "Searcher::search_all"

@@ -53,29 +53,28 @@ class RunSettings:
 
     @property
     def script_name_(self):
-        if "__file__" in dir(__main__):
-            cwd = os.path.abspath(os.getcwd())
-            script_path = os.path.abspath(__main__.__file__)
-            root_path = os.path.abspath(self.root)
+        if "__file__" not in dir(__main__):
+            return "none"
+        cwd = os.path.abspath(os.getcwd())
+        script_path = os.path.abspath(__main__.__file__)
+        root_path = os.path.abspath(self.root)
 
-            if script_path.startswith(cwd):
-                script_path = script_path[len(cwd) :]
+        if script_path.startswith(cwd):
+            script_path = script_path[len(cwd) :]
 
-            else:
-                try:
-                    commonpath = os.path.commonpath([script_path, root_path])
-                    script_path = script_path[len(commonpath) :]
-                except:
-                    pass
+        else:
+            try:
+                commonpath = os.path.commonpath([script_path, root_path])
+                script_path = script_path[len(commonpath) :]
+            except:
+                pass
 
-            assert script_path.endswith(".py")
-            script_name = script_path.replace("/", ".").strip(".")[:-3]
+        assert script_path.endswith(".py")
+        script_name = script_path.replace("/", ".").strip(".")[:-3]
 
-            assert len(script_name) > 0, (script_name, script_path, cwd)
+        assert len(script_name) > 0, (script_name, script_path, cwd)
 
-            return script_name
-
-        return "none"
+        return script_name
 
     @property
     def path_(self):

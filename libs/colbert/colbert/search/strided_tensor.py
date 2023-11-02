@@ -22,7 +22,7 @@ class StridedTensor(StridedTensorCore):
             return
 
         print_message(
-            f"Loading segmented_lookup_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
+            "Loading segmented_lookup_cpp extension (set COLBERT_LOAD_TORCH_EXTENSION_VERBOSE=True for more info)..."
         )
         segmented_lookup_cpp = load(
             name="segmented_lookup_cpp",

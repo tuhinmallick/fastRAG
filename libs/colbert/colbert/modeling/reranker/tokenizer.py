@@ -10,7 +10,7 @@ class RerankerTokenizer:
         assert type(questions) in [list, tuple], type(questions)
         assert type(passages) in [list, tuple], type(passages)
 
-        encoding = self.tok(
+        return self.tok(
             questions,
             passages,
             padding="longest",
@@ -19,5 +19,3 @@ class RerankerTokenizer:
             max_length=self.total_maxlen,
             add_special_tokens=True,
         )
-
-        return encoding

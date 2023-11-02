@@ -36,14 +36,12 @@ class ColBERTRetriever(BaseRetriever):
         self, query: str, top_k: Optional[int] = None, filters=None, **kwargs
     ) -> List[Document]:
         if filters:
-            logger.info(f"Filters are not implemented for ColBERT/PLAID.")
+            logger.info("Filters are not implemented for ColBERT/PLAID.")
 
         if top_k is None:
             top_k = self.top_k
 
-        documents = self.document_store.query(query_str=query, top_k=top_k)
-
-        return documents
+        return self.document_store.query(query_str=query, top_k=top_k)
 
     def retrieve_batch(
         self,
@@ -54,11 +52,9 @@ class ColBERTRetriever(BaseRetriever):
         **kwargs,
     ) -> List[List[Document]]:
         if filters:
-            logger.info(f"Filters are not implemented for ColBERT/PLAID.")
+            logger.info("Filters are not implemented for ColBERT/PLAID.")
 
         if top_k is None:
             top_k = self.top_k
 
-        documents = self.document_store.query_batch(queries, top_k)
-
-        return documents
+        return self.document_store.query_batch(queries, top_k)

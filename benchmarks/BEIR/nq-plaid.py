@@ -20,7 +20,7 @@ logging.basicConfig(
 )
 
 dataset = "nq"
-url = "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{}.zip".format(dataset)
+url = f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset}.zip"
 out_dir = os.path.join(pathlib.Path(".").absolute(), "benchmarks", "datasets")
 data_path = util.download_and_unzip(url, out_dir)
 
@@ -45,14 +45,15 @@ p.add_node(component=retriever, name="Retriever", inputs=["Query"])
 
 
 def retrieve_queries(queries: dict, k: int):
-    ans = {}
-    for q, query in tqdm.tqdm(queries.items(), "queries"):
-        ans[q] = {
-            # need to concat "doc" to the PLAID IDs to match the qrels IDs
-            "doc" + str(doc.id): doc.score
-            for doc in p.run(query, params={"Retriever": {"top_k": k}})["documents"]
+    return {
+        q: {
+            f"doc{str(doc.id)}": doc.score
+            for doc in p.run(query, params={"Retriever": {"top_k": k}})[
+                "documents"
+            ]
         }
-    return ans
+        for q, query in tqdm.tqdm(queries.items(), "queries")
+    }
 
 
 logging.info("Querying documents...")
@@ -60,5 +61,5 @@ results = retrieve_queries(queries, max(k_values))
 
 
 #### Evaluate the retrieval using NDCG@k, MAP@K ...
-logging.info("Retriever evaluation for k in: {}".format(beir_retriever.k_values))
+logging.info(f"Retriever evaluation for k in: {beir_retriever.k_values}")
 ndcg, _map, recall, precision = beir_retriever.evaluate(qrels, results, beir_retriever.k_values)
